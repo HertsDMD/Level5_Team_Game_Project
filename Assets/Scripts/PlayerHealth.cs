@@ -6,9 +6,8 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 100;
     int currentHealth;
-    public HealthBar healthBar;
+    public HealthBar healthBar;    
     
-    public bool ragdollActivated;
     enemyController enemyController;
     CanvasGroup damageOverlay;
     bool PlayerCanDie;
@@ -16,7 +15,12 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
+
+        if (healthBar != null)
+        {
         healthBar.SetMaxHealth(maxHealth);
+
+        }
        
         if (enemyController != null)
         {
@@ -45,10 +49,9 @@ public class PlayerHealth : MonoBehaviour
         }
     }
     public void playerDies()
-    {
-       
-        
+    {              
         StartCoroutine(damageFade());
+
     }
     IEnumerator damageFade()
     {
