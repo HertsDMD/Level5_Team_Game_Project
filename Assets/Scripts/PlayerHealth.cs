@@ -1,125 +1,63 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
-
 {
-    bool playerDies;
-
-    Transform playerStartPosition;
-
-
-    int startHealth = 100;
+    public int maxHealth = 100;
     int currentHealth;
-    Slider healthSlider;
+    public HealthBar healthBar;
+    
+    public bool ragdollActivated;
+    enemyController enemyController;
+    CanvasGroup damageOverlay;
+    bool PlayerCanDie;
 
-    bool isDead = false;
-    bool damaged;
-
-
-
-
-
-    Image damageImage;
-    public float flashSpeed = 2f;
-    public Color flashColour = new Color(1f, 0f, 0f, 0.3f);
-
-
-
-
-    // Start is called before the first frame update
     void Start()
     {
-
-        playerStartPosition = transform;
-
-        currentHealth = startHealth;
-               
-      
-        healthSlider = GameObject.Find("Slider").GetComponent<Slider>();
-
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
+       
+        if (enemyController != null)
+        {
+            enemyController = GameObject.FindGameObjectWithTag
+                  ("enemy").GetComponent<enemyController>();
+        }
+        damageOverlay = GameObject.Find("DamageOverlay").GetComponent<CanvasGroup>();
+        PlayerCanDie = true;
+    }
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
     }
 
-    // Update is called once per frame
     void Update()
     {
-
-        if (damaged)
+        //if (Input.GetButtonDown("HealthTest"))
+        //{
+        //    TakeDamage(20);
+        //}
+        if (currentHealth <= 0 && PlayerCanDie)
         {
-            damageImage.color = flashColour;
-            
+            playerDies();
+            PlayerCanDie = false;
         }
-        else
-        {
-            if (damageImage != null)
-            {
-                damageImage.color = Color.Lerp(damageImage.color, Color.clear, flashSpeed * Time.deltaTime);
-
-            }
-        }
-
-        damaged = false;
-
-        if (transform.position.y < -10 && !isDead)
-        {
-            TakeDamage(100);
-
-        }
-
     }
-
-    
-    public void addHealth(int amout)
+    public void playerDies()
     {
-        currentHealth += amout;
-
-        if (currentHealth > 100)
-        {
-            currentHealth = 100;
-        }
        
-
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth;
-        }
-
+        
+        StartCoroutine(damageFade());
     }
-
-    public void TakeDamage(int amount)
+    IEnumerator damageFade()
     {
-        damaged = true;
-        Debug.Log("player damaged");
 
-
-        currentHealth -= amount;
-
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth;
-        }
-
-
-        if (currentHealth <= 0 && !playerDies)
-        {
-
-            Death();
-            damaged = false;
-            Debug.Log("player is dead");
-
-        }
-
+        damageOverlay.alpha = 1f;
+        yield return new WaitForSeconds(0.3f);
+        damageOverlay.alpha = 0f;
     }
 
 
-    void Death()
-    {
-        isDead = true;
-        playerDies = true;
 
-
-
-    }
 }
